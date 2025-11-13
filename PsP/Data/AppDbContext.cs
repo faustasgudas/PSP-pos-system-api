@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
 
     public DbSet<GiftCard> GiftCards => Set<GiftCard>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Business> Businesses => Set<Business>();
+
 
     protected override void OnModelCreating(ModelBuilder mb)
     {

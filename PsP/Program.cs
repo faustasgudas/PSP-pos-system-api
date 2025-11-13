@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PsP.Data;
+using PsP.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Service layer
-builder.Services.AddScoped<PsP.Services.IGiftCardService, PsP.Services.GiftCardService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+builder.Services.AddScoped<IBusinessService, BusinessService>();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
