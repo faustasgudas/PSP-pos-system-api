@@ -15,5 +15,5 @@ public class Payment
     
     //public Order? Order { get; set; }
     public GiftCard? GiftCard { get; set; }
-    //public Employee? Employee { get; set; }
+    public Employee? Employee { get; set; }
 }

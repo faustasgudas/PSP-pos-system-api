@@ -8,9 +8,8 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<GiftCard> GiftCards => Set<GiftCard>();
-    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PaymentRecord> PaymentRecords => Set<PaymentRecord>();
     public DbSet<Business> Businesses => Set<Business>();
-
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
