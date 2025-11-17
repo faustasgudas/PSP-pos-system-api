@@ -8,12 +8,32 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<GiftCard> GiftCards => Set<GiftCard>();
-    public DbSet<PaymentRecord> PaymentRecords => Set<PaymentRecord>();
     public DbSet<Business> Businesses => Set<Business>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
-        mb.Entity<GiftCard>().HasIndex(x => x.Code).IsUnique();
-        mb.Entity<GiftCard>().Property(x => x.Balance).HasColumnType("NUMERIC(10,2)");
+        base.OnModelCreating(mb);
+
+        mb.Entity<GiftCard>()
+            .HasIndex(x => x.Code)
+            .IsUnique();
+
+        mb.Entity<GiftCard>()
+            .Property(x => x.Balance)
+            .HasColumnType("BIGINT");
+
+        mb.Entity<Payment>()
+            .HasOne(p => p.GiftCard)
+            .WithMany(g => g.Payments)  
+            .HasForeignKey(p => p.GiftCardId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        mb.Entity<Payment>()
+            .HasOne(p => p.Business)
+            .WithMany(b => b.Payments)
+            .HasForeignKey(p => p.BusinessId);
     }
+
+
 }

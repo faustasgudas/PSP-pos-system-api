@@ -42,7 +42,7 @@ namespace PsP.Controllers
         }
 
         [HttpPost("{id:int}/topup")]
-        public async Task<IActionResult> TopUp(int id, [FromBody] decimal amount)
+        public async Task<IActionResult> TopUp(int id, [FromBody] long amount)
         {
             try
             {
@@ -73,6 +73,6 @@ namespace PsP.Controllers
             }
         }
 
-        public record RedeemReq(string Code, decimal Amount);
+        public record RedeemReq(string Code, long Amount);
     }
 }

@@ -15,6 +15,8 @@ Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 // Service layer
 builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<StripePaymentService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
 
 // Stripe service – TIK VIENAS registravimas

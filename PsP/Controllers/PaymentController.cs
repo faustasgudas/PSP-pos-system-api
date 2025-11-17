@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PsP.Data;
-using PsP.Models;
 using PsP.Services;
 
 namespace PsP.Controllers;
@@ -10,61 +7,45 @@ namespace PsP.Controllers;
 [Route("api/[controller]")]
 public class PaymentController : ControllerBase
 {
-    private readonly StripePaymentService _paymentService;
-    private readonly AppDbContext _context;
+    private readonly PaymentService _payments;
 
-    public PaymentController(StripePaymentService paymentService, AppDbContext context)
+    public PaymentController(PaymentService payments)
     {
-        _paymentService = paymentService;
-        _context = context;
+        _payments = payments;
     }
 
-    [HttpPost("create-checkout-session")]
-    public ActionResult CreateCheckoutSession()
+    [HttpPost("create")]
+    public async Task<ActionResult> Create(
+        long amountCents,
+        string currency,
+        int businessId,
+        string? giftCardCode = null,
+        long? giftCardAmountCents = null)
     {
-        var session = _paymentService.CreateCheckoutSession(
-            "https://yourdomain.com/payment/success?sessionId={CHECKOUT_SESSION_ID}",
-            "https://yourdomain.com/payment/cancel?sessionId={CHECKOUT_SESSION_ID}"
-        );
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-        _context.PaymentRecords.Add(new PaymentRecord
-        {
-            StripeSessionId = session.Id,
-            Created = DateTime.UtcNow,
-            Status = "Created"
-        });
-        _context.SaveChanges();
+        var result = await _payments.CreatePaymentAsync(
+            amountCents,
+            currency,
+            businessId,
+            giftCardCode,
+            giftCardAmountCents,
+            baseUrl);
 
-        return Ok(new { sessionId = session.Id, url = session.Url });
+        return Ok(result);
     }
 
     [HttpGet("success")]
     public async Task<IActionResult> Success(string sessionId)
     {
-        var paymentRecord = await _context.PaymentRecords
-            .FirstOrDefaultAsync(p => p.StripeSessionId == sessionId);
-
-        if (paymentRecord != null)
-        {
-            paymentRecord.Status = "Success";
-            await _context.SaveChangesAsync();
-        }
-
+        await _payments.ConfirmStripeSuccessAsync(sessionId);
         return Ok("Payment successful.");
     }
 
     [HttpGet("cancel")]
     public async Task<IActionResult> Cancel(string sessionId)
     {
-        var paymentRecord = await _context.PaymentRecords
-            .FirstOrDefaultAsync(p => p.StripeSessionId == sessionId);
-
-        if (paymentRecord != null)
-        {
-            paymentRecord.Status = "Cancelled";
-            await _context.SaveChangesAsync();
-        }
-
+        // čia gali pažymėti Payment kaip "Cancelled", jei nori
         return Ok("Payment cancelled.");
     }
 }
