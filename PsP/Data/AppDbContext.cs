@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<Payment> Payments => Set<Payment>();
 
+
     protected override void OnModelCreating(ModelBuilder mb)
     {
         base.OnModelCreating(mb);

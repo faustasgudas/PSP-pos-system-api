@@ -14,8 +14,5 @@ public class GiftCard
 
     public int BusinessId { get; set; }
     
-//    public Business Business { get; set; } = null!;
-
-    // 👇 ČIA NAUJAS NAVIGACIJOS PROPERTY
     public List<Payment> Payments { get; set; } = new();
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PsP.Data;
-using PsP.Services;
+using PsP.Services.Interfaces;
+using PsP.Services.Implementations;
 using PsP.Settings;
 
 var builder = WebApplication.CreateBuilder(args);

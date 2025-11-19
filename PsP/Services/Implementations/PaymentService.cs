@@ -1,8 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using PsP.Data;
 using PsP.Models;
-using Microsoft.EntityFrameworkCore;
+using PsP.Services.Interfaces; // čia IGiftCardService
 
-namespace PsP.Services;
+namespace PsP.Services.Implementations;
 
 public class PaymentService
 {
@@ -29,10 +30,21 @@ public class PaymentService
         long plannedFromGiftCard = 0;
         long remainingForStripe = amountCents;
 
+        // ---------- GIFT CARD DALIS ----------
         if (!string.IsNullOrWhiteSpace(giftCardCode))
         {
-            card = await _giftCards.ValidateAsync(giftCardCode, businessId)
-                   ?? throw new Exception("invalid_gift_card");
+            card = await _giftCards.GetByCodeAsync(giftCardCode)
+                   ?? throw new InvalidOperationException("invalid_gift_card");
+
+            // verslo taisyklės (seniau buvo ValidateAsync)
+            if (card.BusinessId != businessId)
+                throw new InvalidOperationException("wrong_business");
+
+            if (card.Status != "Active")
+                throw new InvalidOperationException("blocked");
+
+            if (card.ExpiresAt is not null && card.ExpiresAt <= DateTime.UtcNow)
+                throw new InvalidOperationException("expired");
 
             var maxFromCard = Math.Min(card.Balance, amountCents);
 
@@ -45,12 +57,14 @@ public class PaymentService
             }
             else
             {
-                plannedFromGiftCard = maxFromCard; // senas elgesys: naudoti max
+                // senas elgesys: naudoti maksimumą iš kortelės
+                plannedFromGiftCard = maxFromCard;
             }
 
             remainingForStripe = amountCents - plannedFromGiftCard;
         }
 
+        // ---------- PAYMENT ĮRAŠAS DB ----------
         var p = new Payment
         {
             AmountCents          = amountCents,
@@ -69,11 +83,11 @@ public class PaymentService
         string? stripeUrl = null;
         string? stripeSessionId = null;
 
+        // ---------- STRIPE DALIS ----------
         if (remainingForStripe > 0)
         {
-            // DABAR baseUrl gaunam iš controllerio, o ne "https://yourdomain.lt"
-            var successUrl = $"{baseUrl}/api/payment/success?sessionId={{CHECKOUT_SESSION_ID}}";
-            var cancelUrl  = $"{baseUrl}/api/payment/cancel?sessionId={{CHECKOUT_SESSION_ID}}";
+            var successUrl = $"{baseUrl}/api/payments/success?sessionId={{CHECKOUT_SESSION_ID}}";
+            var cancelUrl  = $"{baseUrl}/api/payments/cancel?sessionId={{CHECKOUT_SESSION_ID}}";
 
             var session = _stripe.CreateCheckoutSession(
                 remainingForStripe,
@@ -91,10 +105,10 @@ public class PaymentService
         }
         else
         {
-            // 100% gift card apmokėjimas – čia jau galima iškart nurašyti
+            // 100% apmokėjimas gift card'u – nurašom iškart
             if (card is not null && plannedFromGiftCard > 0)
             {
-                await _giftCards.RedeemAsync(card.Code, plannedFromGiftCard, businessId);
+                await _giftCards.RedeemAsync(card.GiftCardId, plannedFromGiftCard);
             }
 
             p.Status = "Success";
@@ -121,14 +135,15 @@ public class PaymentService
         if (p == null) return;
         if (p.Status == "Success") return; // idempotency
 
-        if (p.GiftCardId != null &&
+        if (p.GiftCardId is not null &&
             p.GiftCardPlannedCents > 0 &&
             p.GiftCard is not null)
         {
+            // čia irgi pereinam prie Redeem pagal ID
             await _giftCards.RedeemAsync(
-                p.GiftCard.Code,
-                p.GiftCardPlannedCents,
-                p.BusinessId);
+                p.GiftCard.GiftCardId,
+                p.GiftCardPlannedCents
+            );
         }
 
         p.Status = "Success";
@@ -137,10 +152,25 @@ public class PaymentService
     }
 }
 
-public record PaymentResult(
-    int PaymentId,
-    long PaidByGiftCard,
-    long RemainingForStripe,
-    string? StripeUrl,
-    string? StripeSessionId
-);
+public class PaymentResult
+{
+    public int PaymentId { get; set; }
+    public long PaidByGiftCard { get; set; }
+    public long RemainingForStripe { get; set; }
+    public string? StripeUrl { get; set; }
+    public string? StripeSessionId { get; set; }
+
+    public PaymentResult(
+        int paymentId,
+        long paidByGiftCard,
+        long remainingForStripe,
+        string? stripeUrl,
+        string? stripeSessionId)
+    {
+        PaymentId = paymentId;
+        PaidByGiftCard = paidByGiftCard;
+        RemainingForStripe = remainingForStripe;
+        StripeUrl = stripeUrl;
+        StripeSessionId = stripeSessionId;
+    }
+}

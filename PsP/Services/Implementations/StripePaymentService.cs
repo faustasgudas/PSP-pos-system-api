@@ -3,7 +3,7 @@ using PsP.Settings;
 using Stripe;
 using Stripe.Checkout;
 
-namespace PsP.Services;
+namespace PsP.Services.Implementations;
 
 public class StripePaymentService
 {
