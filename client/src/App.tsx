@@ -6,7 +6,19 @@ import "./App.css";
 function App() {
     const [count, setCount] = useState(0);
     const [apiMessage, setApiMessage] = useState("Loading from API...");
-
+    
+    return(
+        <div className="content-box">{}
+            <div className="top-bar">
+                <button className="log-in-button">Log in</button>
+                <h1 className="title">SuperApp</h1>
+            </div>
+            
+            <div className="navigation-bar">
+            </div>
+        </div>
+    );
+/*
     useEffect(() => {
         fetch("https://localhost:44317/api/hello")
             .then(async (res) => {
@@ -49,7 +61,7 @@ function App() {
                 If this shows "Hello from .NET API", your frontend ↔ backend connection works 🎉
             </p>
         </>
-    );
+    );*/
 }
 
 export default App;

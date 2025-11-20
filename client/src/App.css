@@ -1,10 +1,72 @@
+/*
+8ecae6
+219ebc
+023047
+ffb703
+fb8500
+ */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 97.5vh;
 }
 
+body {
+    background: linear-gradient(to bottom, #023047, #219ebc);
+}
+
+.content-box{
+    background-color: white;
+    border-radius: 12px;
+    width: 97%;
+    margin: 1rem auto;
+    min-height: 95vh;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    color: #333;
+    text-align: center;
+}
+
+.top-bar{
+    position: relative;
+    background-color: #219ebc;
+    width: 100%;
+    min-height: 7.5vh;
+    border-radius: 12px 12px 0 0;
+}
+.log-in-button{
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    background-color: #8ecae6;
+    border: #023047;
+    width: 60px;
+    height: 30px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+.log-in-button:hover{
+    background-color: #023047;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.title{
+    position: absolute;
+    top: -2px;
+    left: 10px;
+    color: #023047;
+    font-size: 20px;
+}
+.title:hover{
+    cursor: context-menu;
+    user-select: none;
+}
+.navigation-bar{
+    position: relative;
+    background-color: gray;
+    top: 20;
+}
+/*keeping this just in case
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -40,3 +102,4 @@
 .read-the-docs {
   color: #888;
 }
+*/
