@@ -23,6 +23,5 @@ public class Payment
     public int BusinessId { get; set; }
     public Business Business { get; set; } = null!;
 
-    // kiek planuojam nuskaičiuoti iš giftcard
     public long GiftCardPlannedCents { get; set; }
 }

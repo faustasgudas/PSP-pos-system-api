@@ -20,6 +20,7 @@ builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<StripePaymentService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
 
+
 // Stripe service – TIK VIENAS registravimas
 builder.Services.AddScoped<StripePaymentService>();
 

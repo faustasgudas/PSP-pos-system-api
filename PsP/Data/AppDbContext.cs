@@ -10,6 +10,10 @@ public class AppDbContext : DbContext
     public DbSet<GiftCard> GiftCards => Set<GiftCard>();
     public DbSet<Business> Businesses => Set<Business>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Discount> Discounts =>  Set<Discount>();
+    public DbSet<DiscountEligibility> DiscountEligibilities =>   Set<DiscountEligibility>();
+    public DbSet<TaxRule> TaxRules =>  Set<TaxRule>();
+
 
 
     protected override void OnModelCreating(ModelBuilder mb)
